@@ -1,0 +1,23 @@
+- name: Install Gitlab dependencies
+  apt:
+    name:
+      - ca-certificates
+      - curl
+      - openssh-server
+      - postfix
+    state: present
+  become: true
+
+- name: Add GitLab repository
+  shell: curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | bash
+  become: true
+
+- name: Install GitLab
+  apt:
+    name: gitlab-ce
+    state: present
+  become: true
+
+- name: Configure GitLab
+  shell: gitlab-ctl reconfigure
+  become: true

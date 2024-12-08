@@ -1,0 +1,56 @@
+- name: Install the python module psycopg2
+  ansible.builtin.package:
+    name: python3-psycopg2
+    state: present
+
+
+- name: Install PostgreSQL
+  apt:
+    name: postgresql
+    state: present
+
+- name: Run and enabled the service
+  ansible.builtin.service:
+    name: postgresql
+    state: started
+    enabled: yes
+
+- name: Configure PostgreSQL authentication
+  lineinfile:
+    path: /etc/postgresql/14/main/pg_hba.conf
+    regexp: '^local\s+all\s+postgres\s+peer$'
+    line: 'local all postgres trust'
+    state: present
+  become: true
+
+- name: Restart PostgreSQL
+  service:
+    name: postgresql
+    state: restarted
+  become: true
+
+- name: Configure superuser postgres with a password
+  ansible.builtin.postgresql_user:
+    name: postgres
+    password: 'mon_mot_de_passe'
+    state: present
+    login_user: postgres
+    login_password: 'mon_mot_de_passe'
+
+- name: Create database
+  ansible.builtin.postgresql_db:
+    name: root
+    state: present
+    login_user: postgres
+    login_password: 'mon_mot_de_passe'
+
+- name: Create a user for the database
+  ansible.builtin.postgresql_user:
+    name: root
+    password: 'Espoir15!'
+    priv: "ALL"
+    db: root
+    state: present
+    login_user: postgres
+    login_password: 'mon_mot_de_passe'
+

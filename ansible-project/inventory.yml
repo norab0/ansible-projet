@@ -1,0 +1,4 @@
+all:
+  hosts:
+    gitlab:
+      ansible_connection: local
