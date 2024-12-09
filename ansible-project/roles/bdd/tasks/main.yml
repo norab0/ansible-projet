@@ -1,54 +1,78 @@
+# Installer le module Python requis pour PostgreSQL
 - name: Install the python module psycopg2
   ansible.builtin.package:
     name: python3-psycopg2
     state: present
 
+# Installer PostgreSQL
 - name: Install PostgreSQL
-  apt:
+  ansible.builtin.package:
     name: postgresql
     state: present
 
-- name: Run and enabled the service
+# Activer et dmarrer le service PostgreSQL
+- name: Enable and start PostgreSQL service
   ansible.builtin.service:
     name: postgresql
     state: started
     enabled: yes
 
-- name: Configure PostgreSQL authentication
-  lineinfile:
+# Modifier le fichier pg_hba.conf pour permettre  toutes les IPs
+- name: Allow external connections in pg_hba.conf
+  ansible.builtin.lineinfile:
     path: /etc/postgresql/15/main/pg_hba.conf
-    regexp: '^local\s+all\s+postgres\s+peer$'
-    line: 'local all postgres trust'
+    regexp: '^host\s+all\s+all\s+127\.0\.0\.1/32'
+    line: 'host    all             all             0.0.0.0/0           trust'
     state: present
-  become: true
+  notify: Restart PostgreSQL
 
-- name: Restart PostgreSQL
-  service:
-    name: postgresql
-    state: restarted
-  become: true
-
-- name: Configure superuser postgres with a password
-  ansible.builtin.postgresql_user:
-    name: postgres
-    password: 'mon_mot_de_passe'
+# Remplacer peer par trust pour lutilisateur postgres
+- name: Set trust authentication for postgres user
+  ansible.builtin.lineinfile:
+    path: /etc/postgresql/15/main/pg_hba.conf
+    regexp: '^local\s+all\s+postgres\s+peer'
+    line: 'local   all             postgres                            trust'
     state: present
-    login_user: postgres
-    login_password: 'mon_mot_de_passe'
+  notify: Restart PostgreSQL
 
-- name: Create database
+# Remplacer peer par trust pour tous les utilisateurs locaux
+- name: Set trust authentication for all users
+  ansible.builtin.lineinfile:
+    path: /etc/postgresql/15/main/pg_hba.conf
+    regexp: '^local\s+all\s+all\s+peer'
+    line: 'local   all             all                                 trust'
+    state: present
+  notify: Restart PostgreSQL
+
+# Crer les bases de donnes si elles nexistent pas
+- name: Create multiple databases
   ansible.builtin.postgresql_db:
-    name: root
+    name: "{{ item }}"
     state: present
-    login_user: postgres
-    login_password: 'mon_mot_de_passe'
+  loop:
+    - all
+    - dev
+    - stage
+    - prod
 
-- name: Create a user for the database
+# Crr un utilisateur "vagrant" avec des privilges superutilisateur
+- name: Create user 'vagrant' with superuser privileges
   ansible.builtin.postgresql_user:
-    name: root
-    password: 'Espoir15!'
-    priv: "ALL"
-    db: root
+    name: vagrant
+    password: "Espoir15!"
+    role_attr_flags: SUPERUSER
     state: present
-    login_user: postgres
-    login_password: 'mon_mot_de_passe'
+
+# Attribuer les bases de donnes  lutilisateur "vagrant"
+- name: Grant ownership of databases to 'vagrant'
+  ansible.builtin.postgresql_privs:
+    database: "{{ item }}"
+    roles: vagrant
+    type: database
+    privs: ALL
+    state: present
+  loop:
+    - all
+    - dev
+    - stage
+    - prod
