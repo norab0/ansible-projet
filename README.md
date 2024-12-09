@@ -10,7 +10,6 @@ Ce projet vise à déployer un serveur GitLab de manière automatisée en utilis
 - [Structure du projet Ansible](#structure-du-projet-ansible)
 - [Utilisation](#utilisation)
 - [Vérification](#vérification)
-- [Notes](#notes)
 
 ---
 
