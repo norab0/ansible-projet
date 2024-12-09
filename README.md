@@ -88,3 +88,6 @@ ansible-project/
 Pour confirmer que GitLab fonctionne :
 - Exécutez : `ps aux | grep gitlab`
 - Accédez à l'interface web de GitLab à l'adresse IP ou au domaine configuré.
+
+  ![image](https://github.com/user-attachments/assets/91a4b058-6bee-4b38-a9e0-c82cb29e0f80)
+
