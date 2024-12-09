@@ -3,7 +3,6 @@
     name: python3-psycopg2
     state: present
 
-
 - name: Install PostgreSQL
   apt:
     name: postgresql
@@ -17,7 +16,7 @@
 
 - name: Configure PostgreSQL authentication
   lineinfile:
-    path: /etc/postgresql/14/main/pg_hba.conf
+    path: /etc/postgresql/15/main/pg_hba.conf
     regexp: '^local\s+all\s+postgres\s+peer$'
     line: 'local all postgres trust'
     state: present
@@ -53,4 +52,3 @@
     state: present
     login_user: postgres
     login_password: 'mon_mot_de_passe'
-
