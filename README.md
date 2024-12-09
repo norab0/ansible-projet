@@ -86,7 +86,10 @@ ansible-project/
 ## Vérification
 
 Pour confirmer que GitLab fonctionne :
-- Exécutez : `ps aux | grep gitlab`
+- Exécutez : `netsat -paunt`
+- ![image](https://github.com/user-attachments/assets/ac3e3c22-c09a-4f06-853e-d956c5c4cfe7)
+
+
 - Accédez à l'interface web de GitLab à l'adresse IP ou au domaine configuré.
 
 ![image](https://github.com/user-attachments/assets/d43dcf44-4261-45e0-9232-3515529023fc)
